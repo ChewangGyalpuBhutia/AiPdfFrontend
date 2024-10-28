@@ -15,6 +15,7 @@ function App() {
   const [pdfFileName, setPdfFileName] = useState('');
   const [loadingUpload, setLoadingUpload] = useState(false);
 
+  // File upload
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
     setPdfFile(file);
@@ -22,6 +23,7 @@ function App() {
     await handleUpload(file);
   };
 
+  // Post file to backend for processing
   const handleUpload = async (file) => {
     if (!file) return;
 
@@ -45,6 +47,8 @@ function App() {
     }
   };
 
+
+  // Post question to backend for processing
   const handleQuestionSubmit = async () => {
     if (!pdfId || !question) return;
 
@@ -84,6 +88,7 @@ function App() {
 
   return (
     <div style={{ margin: 0, padding: '0 50px', height: '100vh', fontFamily: 'Arial, sans-serif', display: 'flex', flexDirection: 'column' }}>
+      {/* Navbar */}
       <nav style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', color: 'black' }}>
         <img src={AiPlanet} alt="Logo" style={{ height: '40px' }} />
         <div style={{ display: 'flex', gap: 10, justifyContent: 'center', alignItems: 'center' }}>
@@ -92,16 +97,16 @@ function App() {
               <img src={File} alt="File" style={{ height: '16px' }} />
             </div>
             <div>
-              {pdfFileName && <p style={{ color: '#0FA958', fontSize: '14px', fontStyle: 'normal', fontWeight: '500', lineHeight: '16.468px' }}>Uploaded File: {pdfFileName}</p>}
+              {pdfFileName && <p style={{ color: '#0FA958', fontSize: '14px', fontStyle: 'normal', fontWeight: '500', lineHeight: '16.468px' }}>{pdfFileName.slice(0, 10) + '...'}</p>}
             </div>
           </div>
           <div style={{ height: '45px', justifyContent: 'center', alignItems: 'center', display: 'flex' }}>
             <input type="file" accept="application/pdf" onChange={handleFileChange} style={{ display: 'none' }} id="upload-pdf" />
-            <label htmlFor="upload-pdf" style={{ display: 'flex', padding: '5px 35px', alignItems: 'center', borderRadius: '8px', border: '1px solid #000', cursor: 'pointer' }}>
-              <div style={{ marginRight: 12 }}>
+            <label htmlFor="upload-pdf" className="upload-label">
+              <div className='add-container'>
                 <img src={AddIcon} alt="Add Icon" style={{ height: '18px' }} />
               </div>
-              <div>
+              <div className="upload-text">
                 <p style={{ fontSize: '14px', fontWeight: '600', margin: 0 }}>Upload PDF</p>
               </div>
             </label>
@@ -109,6 +114,8 @@ function App() {
         </div>
       </nav>
 
+
+      {/* Chat Section */}
       <div style={{ flex: 1, padding: '20px', overflowY: 'auto' }}>
         {loadingUpload && (
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -174,14 +181,15 @@ function App() {
         )}
       </div>
 
-      <div style={{ margin: '50px 60px', padding: '0px 40px', display: 'flex', border: '1px solid #E4E8EE', borderRadius: '8px', background: 'rgba(228, 232, 238, 0.35)', outline: '1px solid #000' }}>
+      {/* Input Section */}
+      <div style={{ margin: '50px 60px', padding: '0px 20px', display: 'flex', border: '1px solid #E4E8EE', borderRadius: '8px', background: 'rgba(228, 232, 238, 0.35)', outline: '1px solid #000' }}>
         <div style={{ flex: 1 }}>
           <input
             type="text"
             placeholder="Type a message..."
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
-            style={{ width: '100%', border: 'none', height: '56px', outline: 'none', background: 'rgba(228, 232, 238, 0.35)' }}
+            className="input-box"
           />
         </div>
         <div style={{ justifyContent: 'center', alignItems: 'center', display: 'flex' }}>
