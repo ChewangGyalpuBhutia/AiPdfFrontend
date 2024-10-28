@@ -8,9 +8,6 @@ This project is a full-stack application that allows users to upload PDF documen
 - [Installation](#installation)
 - [Running the Application](#running-the-application)
 - [Available Scripts](#available-scripts)
-- [Project Structure](#project-structure)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Getting Started
 
@@ -75,10 +72,3 @@ Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
 The page will reload when you make changes.\
 You may also see any lint errors in the console.
-
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-## Project Structure
