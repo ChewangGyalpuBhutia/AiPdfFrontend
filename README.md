@@ -5,7 +5,6 @@ This project is a full-stack application that allows users to upload PDF documen
 ## Table of Contents
 
 - [Getting Started](#getting-started)
-- [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Running the Application](#running-the-application)
 - [Available Scripts](#available-scripts)
@@ -16,15 +15,6 @@ This project is a full-stack application that allows users to upload PDF documen
 ## Getting Started
 
 Follow these instructions to set up and run the project on your local machine.
-
-## Prerequisites
-
-Make sure you have the following installed on your system:
-
-- [Node.js](https://nodejs.org/) (v14 or higher)
-- [npm](https://www.npmjs.com/) (v6 or higher)
-- [Python](https://www.python.org/) (v3.7 or higher)
-- [pip](https://pip.pypa.io/en/stable/)
 
 ## Installation
 
