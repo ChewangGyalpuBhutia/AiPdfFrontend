@@ -1,23 +1,176 @@
-import logo from './logo.svg';
+import React, { useState } from 'react';
 import './App.css';
+import AiPlanet from './assets/AiPlanet.svg';
+import AddIcon from './assets/AddIcon.svg';
+import Generate from './assets/Generate.svg';
+import File from './assets/File.svg'
+import Logo from './assets/Logo.svg'
 
 function App() {
+  const [pdfFile, setPdfFile] = useState(null);
+  const [pdfId, setPdfId] = useState(null);
+  const [question, setQuestion] = useState('');
+  const [chatHistory, setChatHistory] = useState([]);
+  const [pdfFileName, setPdfFileName] = useState('');
+  const [loadingUpload, setLoadingUpload] = useState(false);
+  const [loadingQuestion, setLoadingQuestion] = useState(false);
+
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    setPdfFile(file);
+    setPdfFileName(file.name);
+    await handleUpload(file);
+  };
+
+  const handleUpload = async (file) => {
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    setLoadingUpload(true);
+    try {
+      const response = await fetch('http://127.0.0.1:8000/upload_pdf/', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await response.json();
+      setPdfId(data.id);
+      alert('PDF uploaded successfully');
+    } catch (error) {
+      console.error('Error uploading PDF:', error);
+      alert('Failed to upload PDF');
+    } finally {
+      setLoadingUpload(false);
+    }
+  };
+
+  const handleQuestionSubmit = async () => {
+    if (!pdfId || !question) return;
+
+    const formData = new FormData();
+    formData.append('pdf_id', pdfId);
+    formData.append('question', question);
+
+    setLoadingQuestion(true);
+    try {
+      const response = await fetch('http://127.0.0.1:8000/ask_question/', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await response.json();
+      setChatHistory([...chatHistory, { question, answer: data.answer }]);
+      setQuestion('');
+    } catch (error) {
+      console.error('Error asking question:', error);
+      alert('Failed to get answer');
+    } finally {
+      setLoadingQuestion(false);
+    }
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div style={{ margin: 0, padding: '0 50px', height: '100vh', fontFamily: 'Arial, sans-serif', display: 'flex', flexDirection: 'column' }}>
+      <nav style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', color: 'black' }}>
+        <img src={AiPlanet} alt="Logo" style={{ height: '40px' }} />
+        <div style={{ display: 'flex', gap: 10, justifyContent: 'center', alignItems: 'center' }}>
+          <div style={{ gap: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ padding: 7, border: '1px solid #0FA958', borderRadius: 5 }}>
+              <img src={File} alt="File" style={{ height: '16px' }} />
+            </div>
+            <div>
+              {pdfFileName && <p style={{ color: '#0FA958', fontSize: '14px', fontStyle: 'normal', fontWeight: '500', lineHeight: '16.468px' }}>Uploaded File: {pdfFileName}</p>}
+            </div>
+          </div>
+          <div style={{ height: '45px', justifyContent: 'center', alignItems: 'center', display: 'flex' }}>
+            <input type="file" accept="application/pdf" onChange={handleFileChange} style={{ display: 'none' }} id="upload-pdf" />
+            <label htmlFor="upload-pdf" style={{ display: 'flex', padding: '5px 35px', alignItems: 'center', borderRadius: '8px', border: '1px solid #000', cursor: 'pointer' }}>
+              <div style={{ marginRight: 12 }}>
+                <img src={AddIcon} alt="Add Icon" style={{ height: '18px' }} />
+              </div>
+              <div>
+                <p style={{ fontSize: '14px', fontWeight: '600', margin: 0 }}>Upload PDF</p>
+              </div>
+            </label>
+          </div>
+        </div>
+      </nav>
+
+      <div style={{ flex: 1, padding: '20px', overflowY: 'auto' }}>
+        {loadingUpload && <p>Uploading PDF...</p>}
+        {loadingQuestion && <p>Processing question...</p>}
+        {!loadingUpload && !loadingQuestion && (
+          <>
+            {chatHistory.map((chat, index) => (
+              <div key={index} style={{ marginBottom: '20px' }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 24
+                }}>
+                  <div style={{
+                    height: 40,
+                    width: 40,
+                    borderRadius: '50%',
+                    background: '#B0ACE9',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    color: 'white',
+                  }}>
+                    <p style={{
+                      fontSize: 24,
+                      fontWeight: 500,
+                    }}>S</p>
+                  </div>
+                  <p style={{
+                    color: '#1B1F2A',
+                    fontSize: 15,
+                    fontStyle: 'normal',
+                    fontWeight: '500',
+                    letterSpacing: 0.15,
+                  }}>{chat.question}</p>
+                </div>
+
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 24
+                }}>
+
+                  <div>
+                    <img src={Logo} alt="Logo" style={{ height: '40px' }} />
+                  </div>
+                  <p style={{
+                    color: '#1B1F2A',
+                    fontSize: 15,
+                    fontStyle: 'normal',
+                    fontWeight: '500',
+                    letterSpacing: 0.15,
+                  }}>{chat.answer}</p>
+                </div>
+              </div>
+            ))}
+          </>
+        )}
+      </div>
+
+      <div style={{ margin: '50px 60px', padding: '0px 40px', display: 'flex', border: '1px solid #E4E8EE', borderRadius: '8px', background: 'rgba(228, 232, 238, 0.35)' }}>
+        <div style={{ flex: 1 }}>
+          <input
+            type="text"
+            placeholder="Type a message..."
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            style={{ width: '100%', border: 'none', height: '56px', outline: 'none', background: 'rgba(228, 232, 238, 0.35)' }}
+          />
+        </div>
+        <div style={{ justifyContent: 'center', alignItems: 'center', display: 'flex' }}>
+          <button onClick={handleQuestionSubmit} style={{ outline: 'none', border: 'none' }}>
+            <img src={Generate} alt="Generate" style={{ height: '18px', outline: 'none' }} />
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
