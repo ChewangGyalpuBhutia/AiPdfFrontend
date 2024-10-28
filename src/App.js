@@ -3,8 +3,9 @@ import './App.css';
 import AiPlanet from './assets/AiPlanet.svg';
 import AddIcon from './assets/AddIcon.svg';
 import Generate from './assets/Generate.svg';
-import File from './assets/File.svg'
-import Logo from './assets/Logo.svg'
+import File from './assets/File.svg';
+import Logo from './assets/Logo.svg';
+import { TailSpin } from 'react-loader-spinner';
 
 function App() {
   const [pdfFile, setPdfFile] = useState(null);
@@ -13,7 +14,6 @@ function App() {
   const [chatHistory, setChatHistory] = useState([]);
   const [pdfFileName, setPdfFileName] = useState('');
   const [loadingUpload, setLoadingUpload] = useState(false);
-  const [loadingQuestion, setLoadingQuestion] = useState(false);
 
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
@@ -48,24 +48,37 @@ function App() {
   const handleQuestionSubmit = async () => {
     if (!pdfId || !question) return;
 
+    const newChatEntry = { question, answer: '', loading: true };
+    setChatHistory([...chatHistory, newChatEntry]);
+
     const formData = new FormData();
     formData.append('pdf_id', pdfId);
     formData.append('question', question);
 
-    setLoadingQuestion(true);
     try {
       const response = await fetch('http://127.0.0.1:8000/ask_question/', {
         method: 'POST',
         body: formData,
       });
       const data = await response.json();
-      setChatHistory([...chatHistory, { question, answer: data.answer }]);
+      setChatHistory((prevChatHistory) =>
+        prevChatHistory.map((chat, index) =>
+          index === prevChatHistory.length - 1
+            ? { ...chat, answer: data.answer, loading: false }
+            : chat
+        )
+      );
       setQuestion('');
     } catch (error) {
       console.error('Error asking question:', error);
       alert('Failed to get answer');
-    } finally {
-      setLoadingQuestion(false);
+      setChatHistory((prevChatHistory) =>
+        prevChatHistory.map((chat, index) =>
+          index === prevChatHistory.length - 1
+            ? { ...chat, loading: false }
+            : chat
+        )
+      );
     }
   };
 
@@ -97,9 +110,12 @@ function App() {
       </nav>
 
       <div style={{ flex: 1, padding: '20px', overflowY: 'auto' }}>
-        {loadingUpload && <p>Uploading PDF...</p>}
-        {loadingQuestion && <p>Processing question...</p>}
-        {!loadingUpload && !loadingQuestion && (
+        {loadingUpload && (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <TailSpin color="#00BFFF" height={80} width={80} />
+          </div>
+        )}
+        {!loadingUpload && (
           <>
             {chatHistory.map((chat, index) => (
               <div key={index} style={{ marginBottom: '20px' }}>
@@ -137,17 +153,20 @@ function App() {
                   alignItems: 'center',
                   gap: 24
                 }}>
-
                   <div>
                     <img src={Logo} alt="Logo" style={{ height: '40px' }} />
                   </div>
-                  <p style={{
-                    color: '#1B1F2A',
-                    fontSize: 15,
-                    fontStyle: 'normal',
-                    fontWeight: '500',
-                    letterSpacing: 0.15,
-                  }}>{chat.answer}</p>
+                  {chat.loading ? (
+                    <TailSpin color="#00BFFF" height={40} width={40} />
+                  ) : (
+                    <p style={{
+                      color: '#1B1F2A',
+                      fontSize: 15,
+                      fontStyle: 'normal',
+                      fontWeight: '500',
+                      letterSpacing: 0.15,
+                    }}>{chat.answer}</p>
+                  )}
                 </div>
               </div>
             ))}
@@ -155,7 +174,7 @@ function App() {
         )}
       </div>
 
-      <div style={{ margin: '50px 60px', padding: '0px 40px', display: 'flex', border: '1px solid #E4E8EE', borderRadius: '8px', background: 'rgba(228, 232, 238, 0.35)' }}>
+      <div style={{ margin: '50px 60px', padding: '0px 40px', display: 'flex', border: '1px solid #E4E8EE', borderRadius: '8px', background: 'rgba(228, 232, 238, 0.35)', outline: '1px solid #000' }}>
         <div style={{ flex: 1 }}>
           <input
             type="text"
